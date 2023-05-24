@@ -79,11 +79,11 @@ func load(templatesPath string, logger *otelzap.Logger) *template.Template {
 	err = filepath.WalkDir(templatesPath, func(path string, d fs.DirEntry, err error) error {
 		if err == nil && !d.IsDir() {
 			name := path[inSize:]
-			if name[len(name)-5:] == ".html" {
+			if end := len(name) - 5; name[end:] == ".html" {
 				var data []byte
 				data, err = os.ReadFile(path)
 				if err == nil {
-					_, err = tmpl.New(name).Parse(string(data))
+					_, err = tmpl.New(name[:end]).Parse(string(data))
 				}
 			}
 		}
