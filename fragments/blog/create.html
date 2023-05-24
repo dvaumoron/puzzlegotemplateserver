@@ -1,0 +1,19 @@
+
+<h2>
+    {{.Messages.CreateBlogPostTitle}}
+    <a href="{{.BaseUrl}}" role="button">{{.Messages.CancelLinkLabel}}</a>
+</h2>
+
+<form id="previewPostForm" action="{{.BaseUrl}}preview" method="POST">
+    <label>
+        {{.Messages.TitleLabel}}
+        <input type="text" id="postTitleField" name="title"/>
+    </label>
+    <textarea id="postMarkdownField" name="markdown" rows="20" placeholder="{{.Messages.UseMarkdownLabel}}"></textarea>
+    <div class="hide">
+        {{/* to allow JavaScript or WebAssembly to display a localized error message */}}
+        <span id="errorEmptyPostTitleMessage">{{.Messages.EmptyPostTitle}}</span>
+        <span id="errorEmptyPostContentMessage">{{.Messages.EmptyPostContent}}</span>
+    </div>
+    <button type="button" id="previewPostButton">{{.Messages.PreviewLinkLabel}}</button>
+</form>
