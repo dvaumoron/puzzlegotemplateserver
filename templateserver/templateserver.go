@@ -23,10 +23,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"html/template"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	pb "github.com/dvaumoron/puzzletemplateservice"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
