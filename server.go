@@ -21,10 +21,13 @@ package main
 import (
 	_ "embed"
 	"os"
+	"strings"
 
 	"github.com/dvaumoron/puzzlegotemplateserver/templateserver"
 	grpcserver "github.com/dvaumoron/puzzlegrpcserver"
+	locale "github.com/dvaumoron/puzzlelocaleloader"
 	pb "github.com/dvaumoron/puzzletemplateservice"
+	"go.uber.org/zap"
 )
 
 //go:embed version.txt
@@ -32,7 +35,20 @@ var version string
 
 func main() {
 	s := grpcserver.Make(templateserver.TemplateKey, version)
+
+	confLangs := strings.Split(os.Getenv("AVAILABLE_LOCALES"), ",")
+	allLang := make([]string, 0, len(confLangs))
+	for _, lang := range confLangs {
+		allLang = append(allLang, strings.TrimSpace(lang))
+	}
+
 	templatesPath := os.Getenv("TEMPLATES_PATH")
-	pb.RegisterTemplateServer(s, templateserver.New(templatesPath, s.Logger))
+	localesPath := os.Getenv("LOCALES_PATH")
+	messages, err := locale.Load(localesPath, allLang)
+	if err != nil {
+		s.Logger.Fatal("Failed to load locale files", zap.Error(err))
+	}
+
+	pb.RegisterTemplateServer(s, templateserver.New(templatesPath, messages, s.Logger))
 	s.Start()
 }

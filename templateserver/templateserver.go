@@ -41,12 +41,13 @@ var errInternal = errors.New("internal service error")
 type server struct {
 	pb.UnimplementedTemplateServer
 	templates *template.Template
+	messages  map[string]map[string]string
 	logger    *otelzap.Logger
 }
 
-func New(templatesPath string, logger *otelzap.Logger) pb.TemplateServer {
+func New(templatesPath string, messages map[string]map[string]string, logger *otelzap.Logger) pb.TemplateServer {
 	tmpl := load(templatesPath, logger)
-	return server{templates: tmpl, logger: logger}
+	return server{templates: tmpl, messages: messages, logger: logger}
 }
 
 func (s server) Render(ctx context.Context, request *pb.RenderRequest) (*pb.Rendered, error) {
@@ -58,6 +59,7 @@ func (s server) Render(ctx context.Context, request *pb.RenderRequest) (*pb.Rend
 		logger.Error("Failed during JSON parsing", zap.Error(err))
 		return nil, errInternal
 	}
+	data["Messages"] = s.messages[asString(data["lang"])]
 	var content bytes.Buffer
 	if err = s.templates.ExecuteTemplate(&content, request.TemplateName, data); err != nil {
 		logger.Error("Failed during go template call", zap.Error(err))
@@ -95,4 +97,9 @@ func load(templatesPath string, logger *otelzap.Logger) *template.Template {
 		logger.Fatal("Failed to load templates", zap.Error(err))
 	}
 	return tmpl
+}
+
+func asString(value any) string {
+	s, _ := value.(string)
+	return s
 }
