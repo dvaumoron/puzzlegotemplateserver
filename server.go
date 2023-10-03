@@ -48,7 +48,8 @@ func main() {
 	if err != nil {
 		s.Logger.Fatal("Failed to load locale files", zap.Error(err))
 	}
+	sourceFormat := os.Getenv("DATE_FORMAT")
 
-	pb.RegisterTemplateServer(s, templateserver.New(templatesPath, messages, s.Logger))
+	pb.RegisterTemplateServer(s, templateserver.New(templatesPath, sourceFormat, messages, s.Logger))
 	s.Start()
 }

@@ -27,6 +27,7 @@ import (
 	"os"
 	"path/filepath"
 	"text/template"
+	"time"
 
 	pb "github.com/dvaumoron/puzzletemplateservice"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
@@ -45,8 +46,8 @@ type server struct {
 	logger    *otelzap.Logger
 }
 
-func New(templatesPath string, messages map[string]map[string]string, logger *otelzap.Logger) pb.TemplateServer {
-	tmpl := load(templatesPath, logger)
+func New(templatesPath string, sourceFormat string, messages map[string]map[string]string, logger *otelzap.Logger) pb.TemplateServer {
+	tmpl := load(templatesPath, sourceFormat, logger)
 	return server{templates: tmpl, messages: messages, logger: logger}
 }
 
@@ -68,7 +69,7 @@ func (s server) Render(ctx context.Context, request *pb.RenderRequest) (*pb.Rend
 	return &pb.Rendered{Content: content.Bytes()}, nil
 }
 
-func load(templatesPath string, logger *otelzap.Logger) *template.Template {
+func load(templatesPath string, sourceFormat string, logger *otelzap.Logger) *template.Template {
 	templatesPath, err := filepath.Abs(templatesPath)
 	if err != nil {
 		logger.Fatal("Wrong templatesPath", zap.Error(err))
@@ -78,6 +79,17 @@ func load(templatesPath string, logger *otelzap.Logger) *template.Template {
 	}
 
 	tmpl := template.New("")
+	tmpl.Funcs(template.FuncMap{"date": func(value string, targetFormat string) string {
+		if sourceFormat == targetFormat {
+			return value
+		}
+		date, err := time.Parse(sourceFormat, value)
+		if err != nil {
+			return value
+		}
+		return date.Format(targetFormat)
+	}})
+
 	inSize := len(templatesPath)
 	err = filepath.WalkDir(templatesPath, func(path string, d fs.DirEntry, err error) error {
 		if err == nil && !d.IsDir() {
