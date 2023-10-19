@@ -42,7 +42,8 @@ func main() {
 		allLang = append(allLang, strings.TrimSpace(lang))
 	}
 
-	templatesPath := os.Getenv("TEMPLATES_PATH")
+	componentsPath := os.Getenv("COMPONENTS_PATH")
+	viewsPath := os.Getenv("VIEWS_PATH")
 	localesPath := os.Getenv("LOCALES_PATH")
 	messages, err := locale.Load(localesPath, allLang)
 	if err != nil {
@@ -50,6 +51,6 @@ func main() {
 	}
 	sourceFormat := os.Getenv("DATE_FORMAT")
 
-	pb.RegisterTemplateServer(s, templateserver.New(templatesPath, sourceFormat, messages, s.Logger))
+	pb.RegisterTemplateServer(s, templateserver.New(componentsPath, viewsPath, sourceFormat, messages, s.Logger))
 	s.Start()
 }

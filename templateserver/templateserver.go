@@ -23,12 +23,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/fs"
-	"os"
-	"path/filepath"
 	"text/template"
 	"time"
 
+	"github.com/dvaumoron/partrenderer"
 	pb "github.com/dvaumoron/puzzletemplateservice"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
@@ -41,14 +39,14 @@ var errInternal = errors.New("internal service error")
 // server is used to implement puzzletemplateservice.TemplateServer
 type server struct {
 	pb.UnimplementedTemplateServer
-	templates *template.Template
-	messages  map[string]map[string]string
-	logger    *otelzap.Logger
+	renderer partrenderer.PartRenderer
+	messages map[string]map[string]string
+	logger   *otelzap.Logger
 }
 
-func New(templatesPath string, sourceFormat string, messages map[string]map[string]string, logger *otelzap.Logger) pb.TemplateServer {
-	tmpl := load(templatesPath, sourceFormat, logger)
-	return server{templates: tmpl, messages: messages, logger: logger}
+func New(componentsPath string, viewsPath string, sourceFormat string, messages map[string]map[string]string, logger *otelzap.Logger) pb.TemplateServer {
+	renderer := load(componentsPath, viewsPath, sourceFormat, logger)
+	return server{renderer: renderer, messages: messages, logger: logger}
 }
 
 func (s server) Render(ctx context.Context, request *pb.RenderRequest) (*pb.Rendered, error) {
@@ -62,24 +60,15 @@ func (s server) Render(ctx context.Context, request *pb.RenderRequest) (*pb.Rend
 	}
 	data["Messages"] = s.messages[asString(data["lang"])]
 	var content bytes.Buffer
-	if err = s.templates.ExecuteTemplate(&content, request.TemplateName, data); err != nil {
+	if err = s.renderer.ExecuteTemplate(&content, request.TemplateName, data); err != nil {
 		logger.Error("Failed during go template call", zap.Error(err))
 		return nil, errInternal
 	}
 	return &pb.Rendered{Content: content.Bytes()}, nil
 }
 
-func load(templatesPath string, sourceFormat string, logger *otelzap.Logger) *template.Template {
-	templatesPath, err := filepath.Abs(templatesPath)
-	if err != nil {
-		logger.Fatal("Wrong templatesPath", zap.Error(err))
-	}
-	if last := len(templatesPath) - 1; templatesPath[last] != '/' {
-		templatesPath += "/"
-	}
-
-	tmpl := template.New("")
-	tmpl.Funcs(template.FuncMap{"date": func(value string, targetFormat string) string {
+func load(componentsPath string, viewsPath string, sourceFormat string, logger *otelzap.Logger) partrenderer.PartRenderer {
+	customFuncs := template.FuncMap{"date": func(value string, targetFormat string) string {
 		if sourceFormat == targetFormat {
 			return value
 		}
@@ -88,27 +77,13 @@ func load(templatesPath string, sourceFormat string, logger *otelzap.Logger) *te
 			return value
 		}
 		return date.Format(targetFormat)
-	}})
+	}}
 
-	inSize := len(templatesPath)
-	err = filepath.WalkDir(templatesPath, func(path string, d fs.DirEntry, err error) error {
-		if err == nil && !d.IsDir() {
-			name := path[inSize:]
-			if end := len(name) - 5; name[end:] == ".html" {
-				var data []byte
-				data, err = os.ReadFile(path)
-				if err == nil {
-					_, err = tmpl.New(name[:end]).Parse(string(data))
-				}
-			}
-		}
-		return err
-	})
-
+	renderer, err := partrenderer.MakePartRenderer(componentsPath, viewsPath, ".html", customFuncs)
 	if err != nil {
 		logger.Fatal("Failed to load templates", zap.Error(err))
 	}
-	return tmpl
+	return renderer
 }
 
 func asString(value any) string {
