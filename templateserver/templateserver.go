@@ -79,7 +79,7 @@ func load(componentsPath string, viewsPath string, sourceFormat string, logger *
 		return date.Format(targetFormat)
 	}}
 
-	renderer, err := partrenderer.MakePartRenderer(componentsPath, viewsPath, ".html", customFuncs)
+	renderer, err := partrenderer.MakePartRenderer(componentsPath, viewsPath, partrenderer.WithFuncs(customFuncs))
 	if err != nil {
 		logger.Fatal("Failed to load templates", zap.Error(err))
 	}

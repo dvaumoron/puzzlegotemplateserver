@@ -3,7 +3,7 @@ module github.com/dvaumoron/puzzlegotemplateserver
 go 1.21.3
 
 require (
-	github.com/dvaumoron/partrenderer v0.1.0
+	github.com/dvaumoron/partrenderer v0.2.0
 	github.com/dvaumoron/puzzlegrpcserver v1.4.1
 	github.com/dvaumoron/puzzlelocaleloader v1.0.0
 	github.com/dvaumoron/puzzletemplateservice v1.0.0
@@ -19,6 +19,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/spf13/afero v1.10.0 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelutil v0.2.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.41.1 // indirect
 	go.opentelemetry.io/otel v1.15.1 // indirect
