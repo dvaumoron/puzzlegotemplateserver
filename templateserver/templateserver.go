@@ -45,6 +45,7 @@ type server struct {
 }
 
 func New(componentsPath string, viewsPath string, sourceFormat string, messages map[string]map[string]string, logger *otelzap.Logger) pb.TemplateServer {
+	// TODO reloading without restart
 	renderer := load(componentsPath, viewsPath, sourceFormat, logger)
 	return server{renderer: renderer, messages: messages, logger: logger}
 }
