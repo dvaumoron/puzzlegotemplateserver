@@ -6,6 +6,7 @@ buildah from --name puzzlegotemplateserver-working-container scratch
 buildah copy puzzlegotemplateserver-working-container $HOME/go/bin/puzzlegotemplateserver /bin/puzzlegotemplateserver
 buildah copy puzzlegotemplateserver-working-container ../puzzletest/templatedata/templates /templates
 buildah copy puzzlegotemplateserver-working-container ../puzzletest/templatedata/locales /locales
+buildah config --env "AVAILABLE_LOCALES=fr-FR, en-US" puzzlegotemplateserver-working-container
 buildah config --env COMPONENTS_PATH=templates/components puzzlegotemplateserver-working-container
 buildah config --env VIEWS_PATH=templates/views puzzlegotemplateserver-working-container
 buildah config --env LOCALES_PATH=/locales puzzlegotemplateserver-working-container
