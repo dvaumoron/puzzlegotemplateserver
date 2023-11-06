@@ -3,7 +3,7 @@ module github.com/dvaumoron/puzzlegotemplateserver
 go 1.21.3
 
 require (
-	github.com/dvaumoron/partrenderer v0.2.0
+	github.com/dvaumoron/partrenderer v0.3.0
 	github.com/dvaumoron/puzzlegrpcserver v1.4.1
 	github.com/dvaumoron/puzzlelocaleloader v1.0.0
 	github.com/dvaumoron/puzzletemplateservice v1.0.0

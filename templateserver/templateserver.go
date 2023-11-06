@@ -26,7 +26,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/dvaumoron/partrenderer"
+	part "github.com/dvaumoron/partrenderer"
 	pb "github.com/dvaumoron/puzzletemplateservice"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
@@ -39,13 +39,12 @@ var errInternal = errors.New("internal service error")
 // server is used to implement puzzletemplateservice.TemplateServer
 type server struct {
 	pb.UnimplementedTemplateServer
-	renderer partrenderer.PartRenderer
+	renderer part.PartRenderer
 	messages map[string]map[string]string
 	logger   *otelzap.Logger
 }
 
 func New(componentsPath string, viewsPath string, sourceFormat string, messages map[string]map[string]string, logger *otelzap.Logger) pb.TemplateServer {
-	// TODO reloading without restart
 	renderer := load(componentsPath, viewsPath, sourceFormat, logger)
 	return server{renderer: renderer, messages: messages, logger: logger}
 }
@@ -68,7 +67,7 @@ func (s server) Render(ctx context.Context, request *pb.RenderRequest) (*pb.Rend
 	return &pb.Rendered{Content: content.Bytes()}, nil
 }
 
-func load(componentsPath string, viewsPath string, sourceFormat string, logger *otelzap.Logger) partrenderer.PartRenderer {
+func load(componentsPath string, viewsPath string, sourceFormat string, logger *otelzap.Logger) part.PartRenderer {
 	customFuncs := template.FuncMap{"date": func(value string, targetFormat string) string {
 		if sourceFormat == targetFormat {
 			return value
@@ -80,7 +79,9 @@ func load(componentsPath string, viewsPath string, sourceFormat string, logger *
 		return date.Format(targetFormat)
 	}}
 
-	renderer, err := partrenderer.MakePartRenderer(componentsPath, viewsPath, partrenderer.WithFuncs(customFuncs))
+	renderer, err := part.MakePartRenderer(
+		componentsPath, viewsPath, part.WithFuncs(customFuncs), part.WithReloadRule(part.AlwaysReload),
+	)
 	if err != nil {
 		logger.Fatal("Failed to load templates", zap.Error(err))
 	}

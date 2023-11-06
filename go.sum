@@ -67,10 +67,8 @@ github.com/cncf/xds/go v0.0.0-20211011173535-cb28da3451f1/go.mod h1:eXthEFrGJvWH
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dvaumoron/partrenderer v0.1.0 h1:2tk5p0rIIQJoMrQpw5QwZMjafxdOGpnTQ0+az4nOcM0=
-github.com/dvaumoron/partrenderer v0.1.0/go.mod h1:H5yMi8A3gdFdg+XpoPjx4IWN81X1Snmv6pXQ2TWbY3g=
-github.com/dvaumoron/partrenderer v0.2.0 h1:OsWS8K3eHpAj2GoeEY4bz8C8K6nU7sx4I4nqlhHFrD0=
-github.com/dvaumoron/partrenderer v0.2.0/go.mod h1:9YsPCGGvT0yHRWPkPGfygyu3uEjo6f9VAhSLTSQDyZQ=
+github.com/dvaumoron/partrenderer v0.3.0 h1:+9JFG1pw2fXjzbgPDeRhNbpvgSMEi6g0ZbB79/X4IUU=
+github.com/dvaumoron/partrenderer v0.3.0/go.mod h1:9YsPCGGvT0yHRWPkPGfygyu3uEjo6f9VAhSLTSQDyZQ=
 github.com/dvaumoron/puzzlegrpcserver v1.4.1 h1:80QHEbkBOwcK848fYzdNIj6HWg65myS9R/WvHOYqp7Q=
 github.com/dvaumoron/puzzlegrpcserver v1.4.1/go.mod h1:9332HyRIxuOUvzmKI2e6XE4lMGRjn54qBcuAig6uSF8=
 github.com/dvaumoron/puzzlelocaleloader v1.0.0 h1:GpU7pSviOkNCwCG3hX+OGgIzMisv2RDXxUIpw1l/JHE=
