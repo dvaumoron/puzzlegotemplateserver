@@ -79,6 +79,7 @@ func load(componentsPath string, viewsPath string, sourceFormat string, logger *
 		return date.Format(targetFormat)
 	}}
 
+	// TODO make the reload rule configurable
 	renderer, err := part.MakePartRenderer(
 		componentsPath, viewsPath, part.WithFuncs(customFuncs), part.WithReloadRule(part.AlwaysReload),
 	)
