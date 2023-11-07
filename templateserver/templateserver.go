@@ -44,8 +44,8 @@ type server struct {
 	logger   *otelzap.Logger
 }
 
-func New(componentsPath string, viewsPath string, sourceFormat string, messages map[string]map[string]string, logger *otelzap.Logger) pb.TemplateServer {
-	renderer := load(componentsPath, viewsPath, sourceFormat, logger)
+func New(componentsPath string, viewsPath string, sourceFormat string, reloadRuleName string, messages map[string]map[string]string, logger *otelzap.Logger) pb.TemplateServer {
+	renderer := load(componentsPath, viewsPath, sourceFormat, reloadRuleName, logger)
 	return server{renderer: renderer, messages: messages, logger: logger}
 }
 
@@ -67,7 +67,7 @@ func (s server) Render(ctx context.Context, request *pb.RenderRequest) (*pb.Rend
 	return &pb.Rendered{Content: content.Bytes()}, nil
 }
 
-func load(componentsPath string, viewsPath string, sourceFormat string, logger *otelzap.Logger) part.PartRenderer {
+func load(componentsPath string, viewsPath string, sourceFormat string, reloadRuleName string, logger *otelzap.Logger) part.PartRenderer {
 	customFuncs := template.FuncMap{"date": func(value string, targetFormat string) string {
 		if sourceFormat == targetFormat {
 			return value
@@ -79,9 +79,16 @@ func load(componentsPath string, viewsPath string, sourceFormat string, logger *
 		return date.Format(targetFormat)
 	}}
 
-	// TODO make the reload rule configurable
+	reloadRule := part.AlwaysReload
+	switch reloadRuleName {
+	case "onNotFound":
+		reloadRule = part.ReloadOnViewNotFound
+	case "never":
+		reloadRule = part.NeverReload
+	}
+
 	renderer, err := part.MakePartRenderer(
-		componentsPath, viewsPath, part.WithFuncs(customFuncs), part.WithReloadRule(part.AlwaysReload),
+		componentsPath, viewsPath, part.WithFuncs(customFuncs), part.WithReloadRule(reloadRule),
 	)
 	if err != nil {
 		logger.Fatal("Failed to load templates", zap.Error(err))

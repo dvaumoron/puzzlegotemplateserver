@@ -50,7 +50,8 @@ func main() {
 		s.Logger.Fatal("Failed to load locale files", zap.Error(err))
 	}
 	sourceFormat := os.Getenv("DATE_FORMAT")
+	reloadRuleName := os.Getenv("RELOAD_RULE_NAME")
 
-	pb.RegisterTemplateServer(s, templateserver.New(componentsPath, viewsPath, sourceFormat, messages, s.Logger))
+	pb.RegisterTemplateServer(s, templateserver.New(componentsPath, viewsPath, sourceFormat, reloadRuleName, messages, s.Logger))
 	s.Start()
 }
